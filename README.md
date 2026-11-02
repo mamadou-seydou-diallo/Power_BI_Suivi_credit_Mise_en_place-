@@ -88,7 +88,7 @@ et de la répartition Corporate / Retail, principaux clients, et part des trois 
 ## Mesures DAX principales
 
 ```dax
-- **Engagements directs** 
+// Engagements directs 
 Engagements Directs = 
 CALCULATE(
     SUM(MEP_Consolide[Montant]),
