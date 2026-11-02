@@ -13,9 +13,9 @@ demandait **4 à 5 heures** par semaine.
 J’ai conçu un rapport Power BI automatisé qui produit le même résultat en **moins de 5 minutes**.
 
 ## Objectifs du projet :
-— automatiser la production du tableau de bord hebdomadaire ;
-— appliquer des règles de classification identiques d’une semaine à l’autre ;
-— rendre visibles les anomalies de données plutôt que de les masquer.
+- automatiser la production du tableau de bord hebdomadaire
+- appliquer des règles de classification identiques d’une semaine à l’autre
+- rendre visibles les anomalies de données plutôt que de les masquer.
 
 ### Fonctionnalités principales
 - Consolidation automatique de plusieurs fichiers Excel (DIRECTS + HORS BILAN)
