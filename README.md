@@ -60,17 +60,25 @@ Les captures d’écran présentées sont anonymisées.
 sans décaissement.
 ![HORS BILAN](image3.png)
 
-### Page 2 – Évolution et concentration
-![Évolution et concentration](image3.png)
-
 ### Exemples de tables de référence
-jointure sur le code agence. Sans code (hors-bilan), la ligne reçoit « Non attribuable ». Un code absent de la table reçoit « INCONNU (code) – À AJOUTER DANS
-Table_Agences ».
+
+**Table_Agences**  jointure sur le code agence. Sans code (hors-bilan), la ligne reçoit « Non attribuable ». Un code absent de la table reçoit « INCONNU (code) – À AJOUTER DANS Table_Agences ».
 ![Table Agences](table_agences.png)
 
-Le code et les remarques sont comparés en majuscules.
+**Table Produits** Le code et les remarques sont comparés en majuscules.
 ![Table Produits](table_produits.png)
 
-jointure sur le nom normalisé du client. Un client absent de la table reçoit « À
-CLASSER ».
+***Table Segment Client** jointure sur le nom normalisé du client. Un client absent de la table reçoit « À CLASSER ».
 ![Table Segment Client](table_segment_client.png)
+
+### Pages du rapport
+
+**la photographie de la période** Cinq indicateurs (production totale, engagements directs, hors-bilan, dossiers mis en place, nombre d’agences), puis les montants par produit, par maturité, par client, par agence et par segment.
+![indicateurs clés et répartitions](image4.png)
+
+![répartitions par produit, maturité, client, agence et segment](image5.png)
+
+**l’évolution et la concentration** Sélecteur de semaine, évolution de la production
+et de la répartition Corporate / Retail, principaux clients, et part des trois premiers clients.
+![évolution hebdomadaire et concentration de la production](image6.png)
+
