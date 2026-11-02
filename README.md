@@ -122,4 +122,31 @@ DIVIDE(
     ),
     SUM(MEP_Consolide[Montant])
 )
+```
+
+## Fonctions Power Query de classification
+- **fn_produit** : Détermine le produit à partir du code et des remarques.
+  
+```dax
+(code as nullable text, remark as nullable text) as text =>
+let
+c = Text.Upper(Text.Trim(code ?? "")),
+r = Text.Upper(Text.Trim(remark ?? "")),
+result =
+if c = "CMTA" and Text.Contains(r, "TIRAGE") then "Crédit Moyen Terme"
+else if c = "CMTA" then "Crédit Moyen Terme"
+else if c = "ESC1" then "Escompte de traite"
+else if c = "CCTN" then "CCTN (Crédit Court Terme Non Amortissable)"
+else if c = "CCTA" then "CCTA (Crédit Court Terme Amortissable)"
+else if Text.StartsWith(c, "GAR") then "Aval de traite (GAR)"
+else if Text.StartsWith(c, "GRT") then "Caution de soumission (GRT)"
+// Repli pour les lignes Hors Bilan sans référence contrat
+else if c = "" and Text.Contains(r, "AVAL DE TRAITE") then "Aval de traite (GAR)"
+else if c = "" and Text.Contains(r, "CAUTION") then "Caution de soumission (GRT)"
+else if c = "" and Text.Contains(r, "RELAIS") then "CCTN (Crédit Court Terme Non
+↪→ Amortissable)"
+else "NON CLASSÉ (code=" & c & ") - À VÉRIFIER"
+in
+result
+```
 
