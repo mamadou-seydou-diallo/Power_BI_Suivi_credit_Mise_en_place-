@@ -62,13 +62,13 @@ sans décaissement.
 
 ### Exemples de tables de référence
 
-**Table_Agences**  jointure sur le code agence. Sans code (hors-bilan), la ligne reçoit « Non attribuable ». Un code absent de la table reçoit « INCONNU (code) – À AJOUTER DANS Table_Agences ».
+**Table_Agences** jointure sur le code agence. Sans code (hors-bilan), la ligne reçoit « Non attribuable ». Un code absent de la table reçoit « INCONNU (code) À AJOUTER DANS Table_Agences ».
 ![Table Agences](table_agences.png)
 
 **Table Produits** Le code et les remarques sont comparés en majuscules.
 ![Table Produits](table_produits.png)
 
-***Table Segment Client** jointure sur le nom normalisé du client. Un client absent de la table reçoit « À CLASSER ».
+**Table Segment Client** jointure sur le nom normalisé du client. Un client absent de la table reçoit « À CLASSER ».
 ![Table Segment Client](table_segment_client.png)
 
 ### Pages du rapport
