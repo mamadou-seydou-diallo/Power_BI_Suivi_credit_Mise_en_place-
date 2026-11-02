@@ -60,9 +60,11 @@ Les captures d’écran présentées sont anonymisées.
 sans décaissement.
 ![HORS BILAN](image3.png)
 
-### Exemples de tables de référence
+### Tables de référence
 
-**Table_Agences** jointure sur le code agence. Sans code (hors-bilan), la ligne reçoit « Non attribuable ». Un code absent de la table reçoit « INCONNU (code) À AJOUTER DANS Table_Agences ».
+**Table_Agences** jointure sur le code agence. Sans code (hors-bilan), la ligne reçoit « Non attribuable ». 
+Un code absent de la table reçoit « INCONNU (code) À AJOUTER DANS Table_Agences ».
+
 ![Table Agences](table_agences.png)
 
 **Table Produits** Le code et les remarques sont comparés en majuscules.
