@@ -47,3 +47,16 @@ J’ai conçu un rapport Power BI automatisé qui produit le même résultat en 
 ## Confidentialité
 Les données clients et les fichiers sources réels ne peuvent pas être partagés pour des raisons de confidentialité.  
 Les captures d’écran présentées sont anonymisées.
+
+## Captures d'écran
+
+### Page 1 – Indicateurs clés et répartitions
+![Indicateurs clés](image2.png)
+
+### Page 2 – Évolution et concentration
+![Évolution et concentration](image3.png)
+
+### Exemples de tables de référence
+![Table Agences](table_agences.png)
+![Table Produits](table_produits.png)
+![Table Segment Client](table_segment_client.png)
