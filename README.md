@@ -84,3 +84,42 @@ Un code absent de la table reçoit « INCONNU (code) - À AJOUTER DANS Table_Age
 et de la répartition Corporate / Retail, principaux clients, et part des trois premiers clients.
 ![évolution hebdomadaire et concentration de la production](image6.png)
 
+
+## Mesures DAX principales
+
+```dax
+// Engagements directs
+Engagements Directs = 
+CALCULATE(
+    SUM(MEP_Consolide[Montant]),
+    MEP_Consolide[TypeEngagement] = "Direct"
+)
+
+// Hors-bilan
+Hors-Bilan = 
+CALCULATE(
+    SUM(MEP_Consolide[Montant]),
+    MEP_Consolide[TypeEngagement] = "Hors Bilan"
+)
+
+// Nombre d’agences actives
+Nombre Agences = 
+CALCULATE(
+    DISTINCTCOUNT(MEP_Consolide[Agence]),
+    MEP_Consolide[Agence] <> "Non attribuable"
+)
+
+// Part des 3 premiers clients
+Top 3 Clients = 
+DIVIDE(
+    CALCULATE(
+        SUM(MEP_Consolide[Montant]),
+        TOPN(
+            3,
+            VALUES(MEP_Consolide[ClientAffichage]),
+            CALCULATE(SUM(MEP_Consolide[Montant]))
+        )
+    ),
+    SUM(MEP_Consolide[Montant])
+)
+
