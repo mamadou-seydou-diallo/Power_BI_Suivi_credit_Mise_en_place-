@@ -143,8 +143,7 @@ else if Text.StartsWith(c, "GRT") then "Caution de soumission (GRT)"
 // Repli pour les lignes Hors Bilan sans référence contrat
 else if c = "" and Text.Contains(r, "AVAL DE TRAITE") then "Aval de traite (GAR)"
 else if c = "" and Text.Contains(r, "CAUTION") then "Caution de soumission (GRT)"
-else if c = "" and Text.Contains(r, "RELAIS") then "CCTN (Crédit Court Terme Non
-↪→ Amortissable)"
+else if c = "" and Text.Contains(r, "RELAIS") then "CCTN (Crédit Court Terme Non Amortissable)"
 else "NON CLASSÉ (code=" & c & ") - À VÉRIFIER"
 in
 result
