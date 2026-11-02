@@ -50,13 +50,27 @@ Les captures d’écran présentées sont anonymisées.
 
 ## Captures d'écran
 
-### Page 1 – Indicateurs clés et répartitions
-![Indicateurs clés](image2.png)
+### Page 1 – RECAP : un récapitulatif (total des directs, total du hors-bilan, total général)
+![RECAP](image1.png)
+
+### Page 2 – DIRECTS (« Contrats mis en place ») : les crédits décaissés, au bilan
+![DIRECTS](image2.png)
+
+### Page 3 – HORS BILAN (« Cautions et garanties ») : les engagements de signature (avals, cautions),
+sans décaissement.
+![HORS BILAN](image3.png)
 
 ### Page 2 – Évolution et concentration
 ![Évolution et concentration](image3.png)
 
 ### Exemples de tables de référence
+jointure sur le code agence. Sans code (hors-bilan), la ligne reçoit « Non attribuable ». Un code absent de la table reçoit « INCONNU (code) – À AJOUTER DANS
+Table_Agences ».
 ![Table Agences](table_agences.png)
+
+Le code et les remarques sont comparés en majuscules.
 ![Table Produits](table_produits.png)
+
+jointure sur le nom normalisé du client. Un client absent de la table reçoit « À
+CLASSER ».
 ![Table Segment Client](table_segment_client.png)
