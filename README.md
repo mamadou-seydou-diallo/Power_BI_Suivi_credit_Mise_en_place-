@@ -56,8 +56,7 @@ Les captures d’écran présentées sont anonymisées.
 ### Page 2 – DIRECTS (« Contrats mis en place ») : les crédits décaissés, au bilan
 ![DIRECTS](image2.png)
 
-### Page 3 – HORS BILAN (« Cautions et garanties ») : les engagements de signature (avals, cautions),
-sans décaissement.
+### Page 3 – HORS BILAN (« Cautions et garanties ») : les engagements de signature (avals, cautions),sans décaissement.
 ![HORS BILAN](image3.png)
 
 ### Tables de référence
@@ -148,4 +147,104 @@ else "NON CLASSÉ (code=" & c & ") - À VÉRIFIER"
 in
 result
 ```
+
+- **fn_Bucket** : Range une durée en jours dans une tranche de maturité.
+```dax
+(days as nullable number) as text =>
+let
+result =
+if days = null then "N/A (date invalide)"
+else if days <= 90 then "0-3 mois"
+else if days <= 180 then "3-6 mois"
+else if days <= 365 then "6-12 mois"
+else if days <= 1095 then "1-3 ans"
+else "> 3 ans"
+in
+result
+```
+
+- **Requête de consolidation MEP_Consolide** : Le chemin du dossier local a été remplacé par un texte générique.
+```dax
+let
+Source = Folder.Files("<chemin du dossier local MEP_Hebdomadaire>"),
+ExcelFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".xlsx")),
+ExtractOne = (fileContent as binary, fileName as text) as table =>
+let
+wb = Excel.Workbook(fileContent, null, true),
+ProcessSheet = (sheetName as text, colRef as text, colClient as text,
+colBooking as text, colMaturity as text, colBranch as nullable text,
+colMontant as text, colRemark as text, typeEngagement as text) as table =>
+let
+raw = wb{[Item=sheetName, Kind="Sheet"]}[Data],
+promoted = Table.PromoteHeaders(Table.Skip(raw, 1), [PromoteAllScalars=true]),
+filtered = Table.SelectRows(promoted, each
+Record.Field(_, colClient) <> null
+and Text.Trim(Text.From(Record.Field(_, colClient))) <> ""
+and Text.Upper(Text.Trim(Text.From(Record.Field(_, colClient)))) <> "TOTAL"
+and Value.Is(Record.Field(_, colMontant), type number)),
+withClient = Table.AddColumn(filtered, "ClientNorm", each
+Text.Upper(Text.Trim(Text.Combine(Text.Split(Text.From(Record.Field(_, colClient)), " ")," ")))),
+withCode = Table.AddColumn(withClient, "CodeProduit", each
+let refv = Record.Field(_, colRef) in
+if refv <> null and Text.Length(Text.From(refv)) >= 7
+then Text.Middle(Text.From(refv), 3, 4) else ""),
+withProduit = Table.AddColumn(withCode, "Produit", each
+fnClassifyProduit([CodeProduit], Text.From(Record.Field(_, colRemark) ?? ""))),
+withDays = Table.AddColumn(withProduit, "DureeJours", each
+let
+b = Record.Field(_, colBooking), m = Record.Field(_, colMaturity)
+in
+if Value.Is(b, type date) or Value.Is(b, type datetime) then
+if Value.Is(m, type date) or Value.Is(m, type datetime) then
+Duration.Days(Date.From(m) - Date.From(b))
+else null
+else null),
+withBucket = Table.AddColumn(withDays, "MaturiteBucket", each fnBucket([DureeJours])),
+withAgence = if colBranch <> null then
+Table.AddColumn(withBucket, "AgenceCode", each Text.From(Record.Field(_, colBranch)))
+else Table.AddColumn(withBucket, "AgenceCode", each null),
+finalCols = Table.SelectColumns(
+Table.AddColumn(Table.AddColumn(withAgence, "TypeEngagement", each typeEngagement),
+"Montant", each Record.Field(_, colMontant)),
+{"ClientNorm", "TypeEngagement", "Produit", "MaturiteBucket", "AgenceCode", "Montant"}
+)
+in
+finalCols,
+directs = ProcessSheet("DIRECTS", "CONTRACT_REF_NO", "INTITULE DU COMPTE ",
+"BOOKING_DATE", "MATURITY_DATE", "BRANCH_CODE",
+"PRINCIPAL_OUTSTANDING_BAL", "REMARKS", "Direct"),
+horsBilan = ProcessSheet("HORS BILAN", "CONTRACT_REF_NO", "INTITULE DU COMPTE ",
+"BOOKDATE", "MATUDATE", null,
+"PRINCIPAL_OUTSTANDING_BAL", "REMARKS", "Hors Bilan"),
+combined = Table.Combine({directs, horsBilan}),
+withSemaine = Table.AddColumn(combined, "Semaine", each fileName)
+in
+withSemaine,
+AllRows = Table.Combine(Table.TransformRows(ExcelFiles, each ExtractOne([Content], [Name]))),
+MergedAgence = Table.NestedJoin(AllRows, {"AgenceCode"}, Table_Agences,
+{"Code agence"}, "AgenceInfo", JoinKind.LeftOuter),
+ExpandedAgence = Table.ExpandTableColumn(MergedAgence, "AgenceInfo", {"Nom agence"}),
+AgenceFinale = Table.AddColumn(ExpandedAgence, "Agence", each
+if [AgenceCode] = null then "Non attribuable"
+else if [Nom agence] = null then "INCONNU (" & [AgenceCode] & ") - À AJOUTER DANS Table_Agences"
+else [Nom agence]),
+MergedSegment = Table.NestedJoin(AgenceFinale, {"ClientNorm"}, Table_ClientsSegment,
+{"Client"}, "SegInfo", JoinKind.LeftOuter),
+ExpandedSegment = Table.ExpandTableColumn(MergedSegment, "SegInfo", {"Segment", "Nom Affichage"}),
+SegmentFinal = Table.AddColumn(ExpandedSegment, "SegmentFinal", each
+if [Segment] = null then "À CLASSER" else [Segment]),
+ClientAffichageFinal = Table.AddColumn(SegmentFinal, "ClientAffichage", each
+if [Nom Affichage] = null then [ClientNorm] else [Nom Affichage]),
+Result = Table.SelectColumns(ClientAffichageFinal, {"Semaine", "TypeEngagement",
+"ClientNorm", "ClientAffichage", "SegmentFinal", "Produit", "Agence",
+"MaturiteBucket", "Montant"}),
+TypesForces = Table.TransformColumnTypes(Result, {
+{"Montant", type number}, {"Semaine", type text}, {"TypeEngagement", type text},
+{"ClientNorm", type text}, {"ClientAffichage", type text}, {"SegmentFinal", type text},
+{"Produit", type text}, {"Agence", type text}, {"MaturiteBucket", type text}
+})
+in
+TypesForces
+```
+  
 
