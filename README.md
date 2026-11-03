@@ -1,5 +1,7 @@
 # Tableau de bord Power BI – Suivi hebdomadaire des mises en place de crédits
 
+Un rapport Power BI automatisé qui transforme chaque semaine des fichiers Excel bruts en tableau de bord de production crédit : de 4-5 heures de travail manuel à moins de 5 minutes, avec des règles de classification identiques d'une semaine à l'autre et des anomalies de données rendues visibles.
+
 **Contexte :** Direction du Crédit – NSIA Banque Sénégal
 
 ## Problème : 
@@ -26,10 +28,14 @@ J’ai conçu un rapport Power BI automatisé qui produit le même résultat en 
 - Indicateurs de concentration (part des 3 premiers clients)
 - Vue photographie de la période + vue évolution hebdomadaire
 
-### Stack technique
-- **Power Query** : extraction, nettoyage, classification et consolidation
-- **DAX** : mesures (Engagements Directs, Hors-bilan, Top 3 Clients, etc.)
-- **Power BI** : restitution (2 pages principales)
+## Stack technique
+
+| Outil | Rôle |
+|-------|------|
+| **Power Query** | Extraction, nettoyage, classification, consolidation |
+| **DAX** | Mesures (engagements directs, hors-bilan, top 3 clients, etc.) |
+| **Power BI** | Modélisation et restitution |
+
 
   ### Impact
 | Avant | Après |
@@ -39,10 +45,10 @@ J’ai conçu un rapport Power BI automatisé qui produit le même résultat en 
 | Anomalies souvent masquées | Anomalies visibles et tracées |
 
 ## Architecture
-1. Sources : fichiers hebdomadaires + tables de référence
-2. Power Query : lecture, classification, contrôles qualité
-3. Modèle + DAX
-4. Rapport (2 pages)
+1. **Sources** : fichiers hebdomadaires + tables de référence
+2. **Power Query** : lecture, classification, contrôles qualité
+3. **Modèle + DAX**
+4. **Rapport**
 
 ## Confidentialité
 Les données clients et les fichiers sources réels ne peuvent pas être partagés pour des raisons de confidentialité.  
@@ -50,37 +56,47 @@ Les captures d’écran présentées sont anonymisées.
 
 ## Captures d'écran
 
-### Page 1 – RECAP : un récapitulatif (total des directs, total du hors-bilan, total général)
+### RECAP : 
+Récapitulatif : total des directs, total du hors-bilan, total général
 ![RECAP](image1.png)
 
-### Page 2 – DIRECTS (« Contrats mis en place ») : les crédits décaissés, au bilan
+### DIRECTS « Contrats mis en place » : 
+Les crédits décaissés, au bilan
 ![DIRECTS](image2.png)
 
-### Page 3 – HORS BILAN (« Cautions et garanties ») : les engagements de signature (avals, cautions),sans décaissement.
+### HORS BILAN « Cautions et garanties » : 
+Les engagements de signature (avals, cautions),sans décaissement.
 ![HORS BILAN](image3.png)
 
 ### Tables de référence
 
-- **Table_Agences** jointure sur le code agence. Sans code (hors-bilan), la ligne reçoit « Non attribuable ». 
+- **Table_Agences** : jointure sur le code agence. Sans code (cas du hors-bilan), la ligne reçoit « Non attribuable ». 
 Un code absent de la table reçoit « INCONNU (code) - À AJOUTER DANS Table_Agences ».
 
 ![Table Agences](table_agences.png)
 
-- **Table Produits** Le code et les remarques sont comparés en majuscules.
+- **Régle Produits** : Le code et les remarques sont comparés en majuscules.
+Les règles sont portées par la fonction `fnClassifyProduit` (voir plus bas).
+
 ![Table Produits](table_produits.png)
 
-- **Table Segment Client** jointure sur le nom normalisé du client. Un client absent de la table reçoit « À CLASSER ».
+- **Table Segment Client** : jointure sur le nom normalisé du client. Un client absent de la table reçoit « À CLASSER ».
+
 ![Table Segment Client](table_segment_client.png)
 
 ### Pages du rapport
 
-- **la photographie de la période** Cinq indicateurs (production totale, engagements directs, hors-bilan, dossiers mis en place, nombre d’agences), puis les montants par produit, par maturité, par client, par agence et par segment.
+## La photographie de la période
+Cinq indicateurs (production totale, engagements directs, hors-bilan, dossiers mis en place, nombre d’agences), puis les montants par produit, par maturité, par client, par agence et par segment.
+
 ![indicateurs clés et répartitions](image4.png)
 
 ![répartitions par produit, maturité, client, agence et segment](image5.png)
 
-- **l’évolution et la concentration** Sélecteur de semaine, évolution de la production
+## Evolution et la concentration
+Sélecteur de semaine, évolution de la production
 et de la répartition Corporate / Retail, principaux clients, et part des trois premiers clients.
+
 ![évolution hebdomadaire et concentration de la production](image6.png)
 
 
@@ -124,9 +140,9 @@ DIVIDE(
 ```
 
 ## Fonctions Power Query de classification
-- **fn_produit** : Détermine le produit à partir du code et des remarques.
+- **fnClassifyProduit** : Détermine le produit à partir du code et des remarques.
   
-```dax
+```power query
 (code as nullable text, remark as nullable text) as text =>
 let
 c = Text.Upper(Text.Trim(code ?? "")),
@@ -148,8 +164,8 @@ in
 result
 ```
 
-- **fn_Bucket** : Range une durée en jours dans une tranche de maturité.
-```dax
+- **fnBucket** : Range une durée en jours dans une tranche de maturité.
+```power query
 (days as nullable number) as text =>
 let
 result =
@@ -164,7 +180,7 @@ result
 ```
 
 - **Requête de consolidation MEP_Consolide** : Le chemin du dossier local a été remplacé par un texte générique.
-```dax
+```power query
 let
 Source = Folder.Files("<chemin du dossier local MEP_Hebdomadaire>"),
 ExcelFiles = Table.SelectRows(Source, each Text.EndsWith([Name], ".xlsx")),
